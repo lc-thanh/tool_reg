@@ -28,7 +28,8 @@ def convert_captcha():
 
         return str(response.text)
 
-print(convert_captcha())
+
+# print(convert_captcha())
 
 
 def by_captcha(browser):

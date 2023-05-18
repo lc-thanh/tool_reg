@@ -56,6 +56,11 @@ def getCodeMail(username, password, email_code):
                         if "is your Facebook confirmation code" in str(subject).strip():
                             code = get_code_fb(subject)
                             return code
+                    if 'instagram' in str(email_code):
+                        print("Subject:", subject)
+                        if "is your Instagram code" in str(subject).strip():
+                            code = subject.strip().split(" ")[0]
+                            return code
         return None
     except Exception as ex:
         print("ex " + str(ex))

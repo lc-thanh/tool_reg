@@ -11,19 +11,20 @@ from selenium.webdriver.support import expected_conditions as EC
 from common_element import click_elment_xpath, has_element
 from gpm_v2.start_gpm_v2 import create_profile, open_profile, close_profile, get_ip_proxy, delete_profile
 from common_gspread import *
-from Fb_tools import fb_signUp, get_2FA
+from reg_fb import fb_signUp, get_2FA
 from reg_reddit import reg_reddit
+from reg_insta import regInsta
 
 
 def init_tool(name_sheet):
     print("init tool")
-    wks = start_sheet(name_sheet, "reg reddit")
+    wks = start_sheet(name_sheet, "reg insta")
 
     while True:
-        index_proxy, proxy = get_proxy_first(name_sheet)
-        if proxy is None or proxy == "":
-            print("cannot get proxy")
-            break
+        # index_proxy, proxy = get_proxy_first(name_sheet)
+        # if proxy is None or proxy == "":
+        #     print("cannot get proxy")
+        #     break
 
         index_account_on_sheets, account = get_account(wks)
         if account is None:
@@ -31,13 +32,14 @@ def init_tool(name_sheet):
             refresh_proxy_status(name_sheet)
             break
 
-        start_tool(wks, index_account_on_sheets, account, proxy)
+        # start_tool(wks, index_account_on_sheets, account, proxy)
+        start_tool(wks, index_account_on_sheets, account, proxy=None)
 
         refresh_proxy_status(name_sheet)
         sleep(3)
 
 
-def start_tool(wks, index_account_on_sheets, account, proxy):
+def start_tool(wks, index_account_on_sheets, account, proxy=None):
     print("start tool")
 
     if account is not None:
@@ -66,7 +68,7 @@ def start_tool(wks, index_account_on_sheets, account, proxy):
             browser.set_window_rect(0, 0, 1920, 1080)
             sleep(2)
 
-            if reg_reddit(browser, wks, index_account_on_sheets, account):
+            if regInsta(browser, wks, index_account_on_sheets, account):
                 wks.update(COL_STATUS + index_account_on_sheets, "GOOD")
                 sleep(2)
 

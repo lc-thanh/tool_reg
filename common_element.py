@@ -25,7 +25,7 @@ def input_value_by_xpath(browser, xpath, value):
             input_el.send_keys(Keys.CONTROL + Keys.BACKSPACE)
             sleep(0.5)
             input_el.send_keys(value)
-            sleep(1)
+            sleep(2)
             return True
         except:
             print(f"input_value_by_xpath error 3s, XPATH: {xpath}")
