@@ -37,6 +37,10 @@ def regInsta(browser, wks, index_account, account):
         waitWebLoading(browser, 5)
 
         if not click_elment_xpath(browser, "//a[contains(@href,'accounts/emailsignup')]"):
+            if has_element_xpath(browser, "//a[contains(@href,'/direct/inbox/')]"):
+                if after_reg(browser):
+                    return True
+
             error += 1
             continue
 
@@ -144,9 +148,11 @@ def regInsta(browser, wks, index_account, account):
                     wks.update(COL_EMAIL_STATUS + str(index_account), "checkpoint")
                     return False
 
-                click_elment_xpath(browser, "//button[contains(text(),'Not Now')]")
-
-                sleep(2000)
+                if after_reg(browser):
+                    return True
+                else:
+                    error += 1
+                    break
 
             else:
                 print("cannot get email code")
@@ -160,3 +166,24 @@ def regInsta(browser, wks, index_account, account):
         error += 1
         print("try again..")
         continue
+
+
+def after_reg(browser):
+    click_elment_xpath(browser, "//button[contains(text(),'Not Now')]")
+
+    try:
+        follow_buttons = WebDriverWait(browser, 10).until(EC.presence_of_all_elements_located(
+            (By.XPATH, "//div[contains(text(),'Interests')]/../../button")))
+        for _ in range(random.randint(5, 10)):
+            button = random.choice(follow_buttons)
+            sleep(0.5)
+            scroll_into_view(browser, button)
+            sleep(2)
+            button.click()
+            sleep(2)
+
+    except Exception as ex:
+        print(str(ex))
+        return False
+
+    return True

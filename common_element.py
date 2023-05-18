@@ -232,3 +232,11 @@ def scroll_random(driver, pixels_min=500, pixels_max=1000, times=1):
     # actions.move_by_offset(0, 100)  # Di chuyển chuột lên
     # actions.move_by_offset(0, -100)  # Di chuyển chuột xuống
     # actions.perform()
+
+
+def scroll_into_view(driver, element):
+    print("scroll into element: " + str(element))
+    try:
+        driver.execute_script("arguments[0].scrollIntoView();", element)
+    except:
+        pass
