@@ -36,7 +36,7 @@ def regInsta(browser, wks, index_account, account):
         browser.get("https://www.instagram.com/")
         waitWebLoading(browser, 5)
 
-        if not click_elment_xpath(browser, "//a[contains(@href,'accounts/emailsignup')]"):
+        if not click_elment_xpath(browser, "//a[contains(@href,'accounts/emailsignup')]", 2):
             if has_element_xpath(browser, "//a[contains(@href,'/direct/inbox/')]"):
                 if after_reg(browser):
                     return True
@@ -148,6 +148,8 @@ def regInsta(browser, wks, index_account, account):
                     wks.update(COL_EMAIL_STATUS + str(index_account), "checkpoint")
                     return False
 
+                wks.update(COL_EMAIL_STATUS + str(index_account), "Reg Success")
+
                 if after_reg(browser):
                     return True
                 else:
@@ -173,7 +175,7 @@ def after_reg(browser):
 
     try:
         follow_buttons = WebDriverWait(browser, 10).until(EC.presence_of_all_elements_located(
-            (By.XPATH, "//div[contains(text(),'Interests')]/../../button")))
+            (By.XPATH, "//div[text()='Follow']/../..")))
         for _ in range(random.randint(5, 10)):
             button = random.choice(follow_buttons)
             sleep(0.5)

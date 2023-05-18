@@ -237,6 +237,6 @@ def scroll_random(driver, pixels_min=500, pixels_max=1000, times=1):
 def scroll_into_view(driver, element):
     print("scroll into element: " + str(element))
     try:
-        driver.execute_script("arguments[0].scrollIntoView();", element)
+        driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element)
     except:
         pass
