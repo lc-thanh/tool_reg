@@ -34,9 +34,12 @@ def regInsta(browser, wks, index_account, account):
             return False
 
         browser.get("https://www.instagram.com/")
-        waitWebLoading(browser)
+        waitWebLoading(browser, 5)
 
-        click_elment_xpath(browser, "//a[contains(@href,'accounts/emailsignup')]")
+        if not click_elment_xpath(browser, "//a[contains(@href,'accounts/emailsignup')]"):
+            error += 1
+            continue
+
         waitWebLoading(browser)
         email = str(account.get("ID"))
         password = str(account.get("Password"))
@@ -117,6 +120,7 @@ def regInsta(browser, wks, index_account, account):
         error_email_code = 0
         while has_element_xpath(browser, '//input[@name="email_confirmation_code"]'):
             if error_email_code > 2:
+                wks.update(COL_EMAIL_STATUS + str(index_account), 'Account FAIL')
                 break
             email_code = getCodeMail(email, password, "no-reply@mail.instagram.com")
             if email_code is not None:
@@ -128,7 +132,8 @@ def regInsta(browser, wks, index_account, account):
                 click_elment_xpath(browser, '//button[@type="submit"]')
                 sleep(5)
 
-                if has_element_xpath(browser, "//*[contains(text(),\"That code isn't valid\")]"):
+                if has_element_xpath(browser, "//*[contains(text(),\"That code isn't valid\")]") \
+                        or has_element_xpath(browser, "//*[contains(text(),'something went wrong')]"):
                     click_elment_xpath(browser, "//div[contains(text(),'Resend Code.')]")
                     sleep(5)
                     continue
@@ -139,7 +144,10 @@ def regInsta(browser, wks, index_account, account):
                     wks.update(COL_EMAIL_STATUS + str(index_account), "checkpoint")
                     return False
 
+                click_elment_xpath(browser, "//button[contains(text(),'Not Now')]")
+
                 sleep(2000)
+
             else:
                 print("cannot get email code")
                 error_email_code += 1

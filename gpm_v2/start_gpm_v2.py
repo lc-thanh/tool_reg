@@ -42,7 +42,8 @@ def open_profile(profile_id):
                     browserLocation = str(startedResult["browser_location"])
                     seleniumRemoteDebugAddress = str(startedResult["selenium_remote_debug_address"])
                     gpmDriverPath = str(startedResult["selenium_driver_location"])
-                    print('gpmDriverPath = ', gpmDriverPath, 'seleniumRemoteDebugAddress = ', seleniumRemoteDebugAddress)
+                    print('gpmDriverPath = ', gpmDriverPath, 'seleniumRemoteDebugAddress = ',
+                          seleniumRemoteDebugAddress)
                     # Init selenium
                     options = Options()
                     options.debugger_address = seleniumRemoteDebugAddress
@@ -63,12 +64,11 @@ def open_profile(profile_id):
                     myService = service.Service(gpmDriverPath)
                     # driver = UndetectChromeDriver(service = myService, options=options)
                     driver = webdriver.Chrome(service=myService, options=options)
-                    driver.set_page_load_timeout(20)
+                    driver.set_page_load_timeout(30)
                     time.sleep(15)
                     return driver
         except:
             index = index + 1
-
 
 
 def get_ip_proxy(proxy):

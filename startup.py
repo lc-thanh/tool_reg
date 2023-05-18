@@ -21,10 +21,10 @@ def init_tool(name_sheet):
     wks = start_sheet(name_sheet, "reg insta")
 
     while True:
-        # index_proxy, proxy = get_proxy_first(name_sheet)
-        # if proxy is None or proxy == "":
-        #     print("cannot get proxy")
-        #     break
+        index_proxy, proxy = get_proxy_first(name_sheet)
+        if proxy is None or proxy == "":
+            print("cannot get proxy")
+            break
 
         index_account_on_sheets, account = get_account(wks)
         if account is None:
@@ -32,14 +32,14 @@ def init_tool(name_sheet):
             refresh_proxy_status(name_sheet)
             break
 
-        # start_tool(wks, index_account_on_sheets, account, proxy)
-        start_tool(wks, index_account_on_sheets, account, proxy=None)
+        start_tool(wks, index_account_on_sheets, account, proxy)
+        # start_tool(wks, index_account_on_sheets, account, proxy=None)
 
         refresh_proxy_status(name_sheet)
         sleep(3)
 
 
-def start_tool(wks, index_account_on_sheets, account, proxy=None):
+def start_tool(wks, index_account_on_sheets, account, proxy):
     print("start tool")
 
     if account is not None:
