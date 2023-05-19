@@ -1,7 +1,7 @@
 import gspread
 from time import sleep
 import random
-from CONSTANT_reddit_gspread import *
+from CONSTANT_gspread import *
 from gpm_v2.start_gpm_v2 import get_ip_proxy
 
 

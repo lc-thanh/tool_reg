@@ -3,7 +3,7 @@ import string
 from common_element import *
 from read_hotmail import getCodeMail
 from reg_fb import generate_name
-from CONSTANT_insta_gspread import *
+from CONSTANT_gspread import *
 
 
 def tao_ngay_sinh_random():
@@ -38,7 +38,7 @@ def regInsta(browser, wks, index_account, account):
 
         if not click_elment_xpath(browser, "//a[contains(@href,'accounts/emailsignup')]", 2):
             if has_element_xpath(browser, "//a[contains(@href,'/direct/inbox/')]"):
-                if after_reg(browser):
+                if after_reg(browser, wks, index_account):
                     return True
 
             error += 1
@@ -145,12 +145,12 @@ def regInsta(browser, wks, index_account, account):
                 if "suspended" in browser.current_url:
                     print("checkpoint => Fail, sleep 10s and exit..")
                     sleep(10)
-                    wks.update(COL_EMAIL_STATUS + str(index_account), "checkpoint")
+                    wks.update(COL_LINK_INSTA + str(index_account), "checkpoint")
                     return False
 
-                wks.update(COL_EMAIL_STATUS + str(index_account), "Reg Success")
+                wks.update(COL_LINK_INSTA + str(index_account), "Reg Success")
 
-                if after_reg(browser):
+                if after_reg(browser, wks, index_account):
                     return True
                 else:
                     error += 1
@@ -170,7 +170,7 @@ def regInsta(browser, wks, index_account, account):
         continue
 
 
-def after_reg(browser):
+def after_reg(browser, wks, index_account):
     click_elment_xpath(browser, "//button[contains(text(),'Not Now')]")
 
     try:
@@ -187,5 +187,12 @@ def after_reg(browser):
     except Exception as ex:
         print(str(ex))
         return False
+
+    sleep(3)
+    click_elment_xpath(browser, "//div[contains(text(), 'Profile')]/../../..")
+    waitWebLoading(browser, 5)
+    if has_element_xpath(browser, '//a[@href="/accounts/edit/"]'):
+        wks.update(COL_LINK_INSTA + str(index_account), browser.current_url)
+        sleep(1)
 
     return True

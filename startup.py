@@ -14,17 +14,18 @@ from common_gspread import *
 from reg_fb import fb_signUp, get_2FA
 from reg_reddit import reg_reddit
 from reg_insta import regInsta
+from reg_tiktok import reg_tiktok
 
 
 def init_tool(name_sheet):
     print("init tool")
-    wks = start_sheet(name_sheet, "reg insta")
+    wks = start_sheet(name_sheet, "main")
 
     while True:
-        index_proxy, proxy = get_proxy_first(name_sheet)
-        if proxy is None or proxy == "":
-            print("cannot get proxy")
-            break
+        # index_proxy, proxy = get_proxy_first(name_sheet)
+        # if proxy is None or proxy == "":
+        #     print("cannot get proxy")
+        #     break
 
         index_account_on_sheets, account = get_account(wks)
         if account is None:
@@ -32,8 +33,8 @@ def init_tool(name_sheet):
             refresh_proxy_status(name_sheet)
             break
 
-        start_tool(wks, index_account_on_sheets, account, proxy)
-        # start_tool(wks, index_account_on_sheets, account, proxy=None)
+        # start_tool(wks, index_account_on_sheets, account, proxy)
+        start_tool(wks, index_account_on_sheets, account, proxy=None)
 
         refresh_proxy_status(name_sheet)
         sleep(3)
@@ -68,7 +69,7 @@ def start_tool(wks, index_account_on_sheets, account, proxy):
             browser.set_window_rect(0, 0, 1920, 1080)
             sleep(2)
 
-            if regInsta(browser, wks, index_account_on_sheets, account):
+            if reg_tiktok(browser, wks, index_account_on_sheets, account):
                 wks.update(COL_STATUS + index_account_on_sheets, "GOOD")
                 sleep(2)
 

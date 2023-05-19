@@ -112,12 +112,12 @@ def click_elment_id(browser, id_element):
             return True
         except:
             index_error = index_error + 1
-            print("not click sleep 5s, id: " + str(id_element))
-            sleep(5)
+            print("not click sleep 3s, id: " + str(id_element))
+            sleep(3)
 
 
 def click_elment_xpath(browser, element_xpath, index_max=3):
-    print("click_elment_xpath")
+    print("click_elment_xpath: " + str(element_xpath))
     index_error = 0
     while True:
         if index_error > index_max:
@@ -130,8 +130,25 @@ def click_elment_xpath(browser, element_xpath, index_max=3):
             return True
         except:
             index_error = index_error + 1
-            print("not click sleep 5s " + str(element_xpath))
-            sleep(5)
+            print("not click sleep 3s " + str(element_xpath))
+            sleep(3)
+
+
+def hover_on_xpath(browser, xpath):
+    error = 0
+    while True:
+        if error > 3:
+            return False
+        try:
+            AC = ActionChains(browser)
+            elem = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, xpath)))
+            AC.move_to_element(elem).perform()
+            sleep(2)
+            return True
+        except:
+            print("hover error")
+            sleep(2)
+            error += 1
 
 
 def has_element_xpath(driver, xpath):

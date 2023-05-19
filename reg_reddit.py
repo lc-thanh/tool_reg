@@ -1,7 +1,8 @@
 import random
 from common_element import *
-from CONSTANT_reddit_gspread import *
+from CONSTANT_gspread import *
 from captcha import by_captcha
+from read_hotmail import get_verify_link
 
 
 def reg_reddit(browser, wks, index_account, account):
@@ -47,29 +48,62 @@ def reg_reddit(browser, wks, index_account, account):
                             for _ in range(random.randint(5, 10)):
                                 button = random.choice(interest_buttons)
                                 sleep(0.5)
+                                scroll_into_view(browser, button)
+                                sleep(2)
                                 button.click()
                                 sleep(2)
-                            sleep(7000)
+
+                            click_elment_xpath(browser, "//button[text()='Continue']")
+                            sleep(5)
 
                             select_all_buttons = WebDriverWait(browser, 10).until(EC.presence_of_all_elements_located(
                                 (By.XPATH, "//button[contains(text(),'Select All')]")))
                             for _ in range(random.randint(1, 3)):
                                 button = random.choice(select_all_buttons)
                                 sleep(0.5)
+                                scroll_into_view(browser, button)
+                                sleep(2)
                                 button.click()
                                 sleep(2)
-                            sleep(7)
+
+                            click_elment_xpath(browser, "//button[text()='Continue']")
+                            sleep(5)
 
                         if has_element_xpath(browser, "//div[contains(text(),'Style your avatar')]"):
                             click_elment_xpath(browser, "//button[contains(text(),'Randomize')]")
                             sleep(7)
                             click_elment_xpath(browser, "//button[contains(text(),'Continue')]")
+                            sleep(10)
 
-                        sleep(10)
-                        click_elment_xpath(browser, "//button[contains(text(),'Got it')]")
+                        click_elment_xpath(browser, "//button[contains(text(),'Got it')]", 1)
                         sleep(5)
-                        click_elment_xpath(browser, "//button[contains(text(),'Got it')]")
-                        sleep(2000)
+                        click_elment_xpath(browser, "//button[contains(text(),'Got it')]", 1)
+                        sleep(5)
+
+                        verify_link = get_verify_link(email, password, "noreply@reddit.com")
+                        browser.get(verify_link)
+                        waitWebLoading(browser, 5)
+                        browser.get("https://www.reddit.com/settings/")
+                        waitWebLoading(browser)
+                        error_verify = 0
+                        while has_element_xpath(browser, "//button[contains(text(), 'resend')]"):
+                            if error_verify > 2:
+                                wks.update(COL_LINK_REDDIT + str(index_account), "not verify")
+                                return False
+                            click_elment_xpath(browser, "//button[contains(text(), 'resend')]")
+                            sleep(3)
+                            verify_link = get_verify_link(email, password, "noreply@reddit.com")
+                            browser.get(verify_link)
+                            waitWebLoading(browser, 5)
+                            browser.get("https://www.reddit.com/settings/")
+                            waitWebLoading(browser)
+                            error_verify += 1
+                        print("email verified")
+
+                        browser.get("https://www.reddit.com/user/me/")
+                        waitWebLoading(browser, 5)
+                        wks.update(COL_LINK_REDDIT + str(index_account), str(browser.current_url))
+                        sleep(2)
                         return True
 
         error += 1
