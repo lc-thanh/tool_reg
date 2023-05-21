@@ -24,7 +24,8 @@ def tao_ngay_sinh_random():
     return ngay_sinh
 
 
-def regInsta(browser, wks, index_account, account):
+def reg_insta(browser, wks, index_account, account):
+    print("Starting reg Insta")
     error = 0
     username = str(account.get("ID")).split('@')[0]
 
@@ -33,10 +34,10 @@ def regInsta(browser, wks, index_account, account):
             print("REG INSTA ERROR, exit...")
             return False
 
-        browser.get("https://www.instagram.com/")
+        browser.get("https://www.instagram.com/accounts/emailsignup/")
         waitWebLoading(browser, 5)
 
-        if not click_elment_xpath(browser, "//a[contains(@href,'accounts/emailsignup')]", 2):
+        if not has_element_xpath(browser, '//input[@name="emailOrPhone"]', 2):
             if has_element_xpath(browser, "//a[contains(@href,'/direct/inbox/')]"):
                 if after_reg(browser, wks, index_account):
                     return True
@@ -44,7 +45,6 @@ def regInsta(browser, wks, index_account, account):
             error += 1
             continue
 
-        waitWebLoading(browser)
         email = str(account.get("ID"))
         password = str(account.get("Password"))
 

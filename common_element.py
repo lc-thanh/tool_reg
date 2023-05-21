@@ -12,6 +12,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 def input_value_by_xpath(browser, xpath, value):
     index_time = 0
     while True:
+        print("input into xpath: " + str(xpath))
         index_time = index_time + 1
         if index_time > 5:
             return False
@@ -151,10 +152,10 @@ def hover_on_xpath(browser, xpath):
             error += 1
 
 
-def has_element_xpath(driver, xpath):
+def has_element_xpath(driver, xpath, check_times=2):
     error = 0
     while True:
-        if error > 1:
+        if error >= check_times:
             return False
         try:
             sleep(3)
@@ -203,6 +204,7 @@ def click_elment_xpath_slow(browser, element_xpath):
 def waitWebLoading(driver, sleep_time=3):
     # Chờ trang web tải xong
     try:
+        sleep(3)
         wait = WebDriverWait(driver, 10)
         wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
     except:

@@ -18,6 +18,7 @@ def get_code_fb(sub):
 
 
 def getCodeMail(username, password, email_code):
+    print("getCodeMail")
     username = str(username)
     app_password = str(password)
     gmail_host = 'imap-mail.outlook.com'

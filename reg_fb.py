@@ -1,8 +1,8 @@
 import string
 
-from common_element import input_value_by_xpath, click_elment_xpath, has_element, has_element_xpath, get_value_element
+from common_element import *
 from read_hotmail import getCodeMail
-from CONSTANT_Fb_gspread import *
+from CONSTANT_gspread import *
 
 import pyotp
 from selenium import webdriver
@@ -17,6 +17,25 @@ import names
 
 
 # =================== FACEBOOK REG ACCOUNT ====================
+
+def tao_ngay_sinh_random():
+    nam_sinh = random.randint(1985, 2004)
+    thang = random.randint(1, 12)
+
+    if thang == 2:
+        if nam_sinh % 4 == 0 and (nam_sinh % 100 != 0 or nam_sinh % 400 == 0):
+            ngay = random.randint(1, 29)
+        else:
+            ngay = random.randint(1, 28)
+    elif thang in [4, 6, 9, 11]:
+        ngay = random.randint(1, 30)
+    else:
+        ngay = random.randint(1, 31)
+
+    ngay_sinh = f"{ngay:02d}/{thang:02d}/{nam_sinh}"  # Định dạng ngày: dd/mm/yyyy
+    return ngay_sinh
+
+
 def generate_name_by_letters(letters):
     vowels = "aeiou"
     consonants = "".join(set(letters) - set(vowels))
@@ -104,18 +123,40 @@ def generate_name(random_string: str, gender='male'):
     return first_name.capitalize(), last_name.capitalize()
 
 
-def fb_signUp(browser, wks, index_account, account):
-    print("Starting reg...")
+def reg_fb(browser, wks, index_account, account):
+    print("Starting reg Fb...")
     sleep(3)
     error = 0
+
+    account_id = str(account.get("ID"))
+    account_password = str(account.get("Password"))
+
+    account_birthday = account.get("Birth day")
+    if account_birthday is None or account_birthday == "":
+        account_birthday = tao_ngay_sinh_random()
+
+    account_gender = account.get("Sex")
+    if account_gender is None or account_gender == "":
+        account_gender = (random.randint(0, 100) % 2 != 0) and 'male' or 'female'
+        print("Gender: " + str(account_gender))
+        wks.update(COL_SEX + str(index_account), str(account_gender))
+        sleep(2)
+
+    account_name = account.get("Name")
+    if account_name is None or account_name == "":
+        account_firstName, account_lastName = generate_name(account_id.split("@")[0], account_gender)
+        print("Name: " + str(account_firstName) + " " + str(account_lastName))
+        wks.update(COL_NAME + str(index_account), str(account_firstName) + " " + str(account_lastName))
+        sleep(2)
+    else:
+        account_firstName = str(account_name).strip().split(" ")[0]
+        account_lastName = str(account_name).strip().split(" ")[1]
+
     while True:
         if error > 3:
             print("signUp error, exit..")
             return False
         try:
-            account_id = str(account.get("ID"))
-            account_password = str(account.get("Password"))
-            account_birthday = str(account.get("Birth day"))
 
             # Truy cập Facebook
             browser.get("http://facebook.com/me")
@@ -126,7 +167,7 @@ def fb_signUp(browser, wks, index_account, account):
                 url_check = browser.current_url
                 if "profile.php" in url_check:
                     print("logged in")
-                    wks.update(COL_FACEBOOK + str(index_account), str(url_check))
+                    wks.update(COL_LINK_FACEBOOK + str(index_account), str(url_check))
                     if account.get("2FA") is None or account.get("2FA") == "":
                         account_2fa = get_2FA(browser, account)
                         if account_2fa:
@@ -153,15 +194,6 @@ def fb_signUp(browser, wks, index_account, account):
                     error += 1
                     sleep(1)
                     continue
-
-                account_gender = (random.randint(0, 100) % 2 != 0) and 'male' or 'female'
-                print("Gender: " + str(account_gender))
-                wks.update(COL_SEX + str(index_account), str(account_gender))
-                sleep(3)
-
-                account_firstName, account_lastName = generate_name(account_id.split("@")[0], account_gender)
-                print("Name: " + str(account_firstName) + " " + str(account_lastName))
-                wks.update(COL_NAME + str(index_account), str(account_firstName) + " " + str(account_lastName))
 
                 # Nhập họ, tên
                 input_value_by_xpath(browser, '//input[@name="lastname"]', account_lastName)
@@ -218,92 +250,104 @@ def fb_signUp(browser, wks, index_account, account):
                 # Submit
                 click_elment_xpath(browser, '//button[@name="websubmit"]')
                 sleep(10)
+                waitWebLoading(browser, 5)
 
-            # Nếu có thông báo đăng ký không thành công
-            if has_element(browser, '#reg_error_inner'):
-                # wks.update(COL_EMAIL_STATUS + str(index_account), "email used")
-                return False
+                # Nếu có thông báo đăng ký không thành công
+                if has_element(browser, '#reg_error_inner'):
+                    if has_element_xpath(browser, "//div[contains(text(), 'use the name that')]", 1):
+                        print("name error")
+                        # account_firstName, account_lastName = generate_name(account_id.split("@")[0], account_gender)
+                        account_firstName = names.get_first_name(account_gender)
+                        account_lastName = names.get_last_name()
+                        print("New name: " + str(account_firstName) + " " + str(account_lastName))
+                        wks.update(COL_NAME + str(index_account), str(account_firstName) + " " + str(account_lastName))
+                        sleep(2)
+                        error += 1
+                        continue
+                    print("have #reg_error_inner, trying again...")
+                    error += 1
+                    sleep(2)
+                    continue
 
-            # Sau khi bấm nút Submit đăng ký
-            # Nếu dính checkpoint
-            if "checkpoint" in browser.current_url:
-                print("Facebook checkpoint => Fail, sleep 10s and exit..")
-                sleep(10)
-                wks.update(COL_STATUS + str(index_account), "checkpoint FAIL")
-                return False
+                # Sau khi bấm nút Submit đăng ký
+                # Nếu dính checkpoint
+                if "checkpoint" in browser.current_url:
+                    print("Facebook checkpoint => Fail, sleep 10s and exit..")
+                    sleep(10)
+                    wks.update(COL_LINK_FACEBOOK + str(index_account), "checkpoint FAIL")
+                    return False
 
-            # Điền email code
-            error_code = 0
-            while True:
-                if has_element(browser, "#code_in_cliff"):
-                    print("have element #code_in_cliff, starting getCodeMail()")
+                # Điền email code
+                error_code = 0
+                while True:
+                    if has_element(browser, "#code_in_cliff"):
+                        print("have element #code_in_cliff, starting getCodeMail()")
 
-                    fb_code = getCodeMail(account_id, account_password, "registration@facebookmail.com")
-                    if fb_code is not None:
-                        fb_code = str(fb_code)
-                        print("Code is: " + fb_code)
-                        input_value_by_xpath(browser,
-                                             '//*[@id="conf_dialog_middle_components"]/div/label/div/input',
-                                             fb_code)
-                        sleep(5)
-                        click_elment_xpath(browser, '//button[@name="confirm" and @type="submit"]')
-                        if click_elment_xpath(browser, "//*[contains(text(),'Okay')]"):
-                            # sleep(5)
-
+                        fb_code = getCodeMail(account_id, account_password, "registration@facebookmail.com")
+                        if fb_code is not None:
+                            fb_code = str(fb_code)
+                            print("Code is: " + fb_code)
+                            input_value_by_xpath(browser,
+                                                 '//*[@id="conf_dialog_middle_components"]/div/label/div/input',
+                                                 fb_code)
                             sleep(5)
-                            browser.get("https://www.facebook.com/me")
-                            sleep(5)
-                            url_check = browser.current_url
-                            if "profile.php" in url_check:
-                                print("Reg Account Successfully")
-                                wks.update(COL_FACEBOOK + str(index_account), str(url_check))
+                            if click_elment_xpath(browser, '//button[@name="confirm" and @type="submit"]'):
+                                sleep(10)
+                                # click_elment_xpath(browser, "//a[contains(text(),'Ok')]")
+                                # sleep(5)
+                                browser.get("https://www.facebook.com/me")
+                                sleep(5)
+                                url_check = browser.current_url
+                                if "profile.php" in url_check:
+                                    print("Reg Account Successfully")
+                                    wks.update(COL_LINK_FACEBOOK + str(index_account), str(url_check))
 
-                                account_2fa = get_2FA(browser, account)
-                                if account_2fa:
-                                    wks.update(COL_2FA + str(index_account), str(account_2fa))
-                                    sleep(2)
-                                    print(f"Done! Close browser: {account_id}")
-                                    sleep(3)
-                                    return True
-                                else:
+                                    account_2fa = get_2FA(browser, account)
+                                    if account_2fa:
+                                        wks.update(COL_2FA + str(index_account), str(account_2fa))
+                                        sleep(2)
+                                        print(f"Done Reg Fb! Account: {account_id}")
+                                        sleep(3)
+                                        return True
+                                    else:
+                                        return False
+
+                                elif "checkpoint" in url_check:
+                                    print("Facebook checkpoint => Fail, sleep 10s and exit..")
+                                    sleep(10)
+                                    wks.update(COL_LINK_FACEBOOK + str(index_account), "checkpoint FAIL")
                                     return False
 
-                            elif "checkpoint" in url_check:
-                                print("Facebook checkpoint => Fail, sleep 10s and exit..")
-                                sleep(10)
-                                wks.update(COL_STATUS + str(index_account), "checkpoint FAIL")
+                        else:
+                            print("get Fb code error, click to 'Send Email Again' and try again..")
+                            if error_code > 3:
+                                print("cannot get email code, exit reg...")
+                                wks.update(COL_EMAIL_STATUS + str(index_account), "Account FAIL")
                                 return False
 
-                    else:
-                        print("get Fb code error, click to 'Send Email Again' and try again..")
-                        if error_code > 3:
-                            print("cannot get email code, exit reg...")
-                            wks.update(COL_EMAIL_STATUS + str(index_account), "getCode FAIL")
-                            return False
-
-                        error_code += 1
-                        sleep(2)
-                        if click_elment_xpath(browser, "//a[contains(@href,'/confirm/resend_code/')]", 2):
-                            sleep(10)
-                            if has_element_xpath(browser, "//*[contains(text(),'To confirm your email')]"):
-                                click_elment_xpath(browser,
-                                                   "(//a[contains(@href,'/change_contactpoint/dialog/')])[2]/../a[2]")
-                                sleep(3)
-                            else:
-                                print("can not access to 'Resend email code' site, retry reg...")
-                                sleep(2)
-                                error += 1
-                                break
-                        else:
                             error_code += 1
-                            browser.get("https://www.facebook.com/")
-                            sleep(10)
+                            sleep(2)
+                            if click_elment_xpath(browser, "//a[contains(@href,'/confirm/resend_code/')]", 2):
+                                sleep(10)
+                                if has_element_xpath(browser, "//*[contains(text(),'To confirm your email')]"):
+                                    click_elment_xpath(browser,
+                                                       "(//a[contains(@href,'/change_contactpoint/dialog/')])[2]/../a[2]")
+                                    sleep(3)
+                                else:
+                                    print("can not access to 'Resend email code' site, retry reg...")
+                                    sleep(2)
+                                    error += 1
+                                    break
+                            else:
+                                error_code += 1
+                                browser.get("https://www.facebook.com/")
+                                sleep(10)
 
-                else:
-                    print('cannot enter code confirm email, trying again..')
-                    sleep(3)
-                    error += 1
-                    break
+                    else:
+                        print('cannot enter code confirm email, trying again..')
+                        sleep(3)
+                        error += 1
+                        break
 
         except:
             error += 1
@@ -348,11 +392,3 @@ def get_2FA(browser, account):
 
         error += 1
         continue
-
-# ============================================================
-
-
-# =================== FACEBOOK REACT POST ====================
-
-# def react_post():
-#
