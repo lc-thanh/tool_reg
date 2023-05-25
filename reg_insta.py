@@ -34,8 +34,14 @@ def reg_insta(browser, wks, index_account, account):
             print("REG INSTA ERROR, exit...")
             return False
 
-        browser.get("https://www.instagram.com/accounts/emailsignup/")
+        browser.get("https://www.instagram.com/")
         waitWebLoading(browser, 5)
+
+        if not click_elment_xpath(browser, "//a[contains(@href, 'accounts/emailsignup/')]"):
+            error += 1
+            print("cannot click 'Sign up' button, trying again...")
+            sleep(2)
+            continue
 
         if not has_element_xpath(browser, '//input[@name="emailOrPhone"]', 2):
             if has_element_xpath(browser, "//a[contains(@href,'/direct/inbox/')]"):
@@ -66,7 +72,12 @@ def reg_insta(browser, wks, index_account, account):
         input_value_by_xpath(browser, '//input[@name="username"]', username)
         input_value_by_xpath(browser, '//input[@name="password"]', password)
 
-        click_elment_xpath(browser, '//button[@type="submit"]')
+        click_elment_xpath(browser, '//input[@name="username"]')
+        if not click_elment_xpath(browser, '//button[@type="submit"]'):
+            error += 1
+            print("cannot click submit button, trying reg again...")
+            sleep(2)
+            continue
         sleep(5)
 
         if has_element(browser, "#ssfErrorAlert"):
