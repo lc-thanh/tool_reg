@@ -5,12 +5,13 @@ from tkinter import *
 from tkinter import messagebox
 
 from startup import init_tool
+from read_hotmail import getCodeMail
 
 
 def main():
     window = Tk()
     window.title("Tool Reg")
-    window.geometry("850x250")
+    window.geometry("750x310")
     text_button_start = StringVar()
     text_button_start.set("Start")
 
@@ -37,6 +38,7 @@ def main():
     checkbox_reg_insta = BooleanVar()
     checkbox_reg_reddit = BooleanVar()
     checkbox_reg_tiktok = BooleanVar()
+    checkbox_reg_garena = BooleanVar()
 
     Checkbutton(window, text="Reg Facebook", variable=checkbox_reg_fb, padx=10, pady=10, font=("Arial", 13)).grid(
         column=0,
@@ -48,11 +50,15 @@ def main():
         column=2,
         row=4)
     Checkbutton(window, text="Reg Tiktok", variable=checkbox_reg_tiktok, padx=10, pady=10, font=("Arial", 13)).grid(
-        column=3,
-        row=4)
+        column=0,
+        row=5)
+    Checkbutton(window, text="Reg Garena", variable=checkbox_reg_garena, padx=10, pady=10, font=("Arial", 13)).grid(
+        column=1,
+        row=5)
 
     class thread(threading.Thread):
-        def __init__(self, name_sheet, group_gpm, screen_size, is_reg_fb, is_reg_insta, is_reg_reddit, is_reg_tiktok):
+        def __init__(self, name_sheet, group_gpm, screen_size, is_reg_fb, is_reg_insta, is_reg_reddit, is_reg_tiktok,
+                     is_reg_garena):
             super().__init__()
             self.name_sheet = name_sheet
             self.group_gpm = group_gpm
@@ -61,11 +67,12 @@ def main():
             self.is_reg_insta = is_reg_insta
             self.is_reg_reddit = is_reg_reddit
             self.is_reg_tiktok = is_reg_tiktok
+            self.is_reg_garena = is_reg_garena
 
         def run(self):
             print("run")
             init_tool(self.name_sheet, self.group_gpm, self.screen_size, self.is_reg_fb, self.is_reg_insta,
-                      self.is_reg_reddit, self.is_reg_tiktok)
+                      self.is_reg_reddit, self.is_reg_tiktok, self.is_reg_garena)
 
     def start():
         print("start")
@@ -76,6 +83,7 @@ def main():
         is_reg_insta = checkbox_reg_insta.get()
         is_reg_reddit = checkbox_reg_reddit.get()
         is_reg_tiktok = checkbox_reg_tiktok.get()
+        is_reg_garena = checkbox_reg_garena.get()
 
         if not name_sheet or name_sheet is None or \
                 not group_gpm or group_gpm is None or \
@@ -83,7 +91,7 @@ def main():
             messagebox.showerror("Error", "Input is empty!!")
         else:
             thread_start = thread(name_sheet, group_gpm, screen_size, is_reg_fb, is_reg_insta, is_reg_reddit,
-                                  is_reg_tiktok)
+                                  is_reg_tiktok, is_reg_garena)
             thread_start.start()
 
     def save():
@@ -95,6 +103,7 @@ def main():
         is_reg_insta = checkbox_reg_insta.get()
         is_reg_reddit = checkbox_reg_reddit.get()
         is_reg_tiktok = checkbox_reg_tiktok.get()
+        is_reg_garena = checkbox_reg_garena.get()
 
         if not name_sheet or name_sheet is None or \
                 not group_gpm or group_gpm is None or \
@@ -108,7 +117,8 @@ def main():
                 "is_reg_fb": bool(is_reg_fb),
                 "is_reg_insta": bool(is_reg_insta),
                 "is_reg_reddit": bool(is_reg_reddit),
-                "is_reg_tiktok": bool(is_reg_tiktok)
+                "is_reg_tiktok": bool(is_reg_tiktok),
+                "is_reg_garena": bool(is_reg_garena)
             }
             with open("cache.json", "w") as outfile:
                 json.dump(data, outfile)
@@ -143,6 +153,7 @@ def main():
         checkbox_reg_insta.set(data_cache['is_reg_insta'])
         checkbox_reg_reddit.set(data_cache['is_reg_reddit'])
         checkbox_reg_tiktok.set(data_cache['is_reg_tiktok'])
+        checkbox_reg_garena.set(data_cache['is_reg_garena'])
 
     bt_start = Button(window, textvariable=text_button_start, font=("Arial", 19), width=15, bg="green", command=start)
     bt_start.grid(column=0, row=19)
@@ -156,3 +167,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # getCodeMail("bertrandfittingusfx@hotmail.com", "F8PvEK3sLR", "noreply@account.tiktok.com")
+    # print("sturkeyhanneloresus"[0:12])

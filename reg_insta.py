@@ -57,15 +57,20 @@ def reg_insta(browser, wks, index_account, account):
         gender = account.get("Sex")
         if gender is None or gender == "":
             gender = random.choice([True, False]) and 'male' or 'female'
+            wks.update(COL_SEX + str(index_account), gender)
+            sleep(1)
 
         fullName = account.get("Name")
         if fullName is None or fullName == "":
             name1, name2 = generate_name(email.split('@')[0], gender=gender)
             fullName = name1 + " " + name2
+            wks.update(COL_NAME + str(index_account), fullName)
+            sleep(1)
 
         birthday = account.get("Birth day")
         if birthday is None or birthday == "":
             birthday = tao_ngay_sinh_random()
+            wks.update(COL_BIRTHDAY + str(index_account), birthday)
 
         input_value_by_xpath(browser, '//input[@name="emailOrPhone"]', email)
         input_value_by_xpath(browser, '//input[@name="fullName"]', fullName)

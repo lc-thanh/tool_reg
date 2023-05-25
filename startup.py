@@ -15,17 +15,18 @@ from reg_fb import reg_fb
 from reg_reddit import reg_reddit
 from reg_insta import reg_insta
 from reg_tiktok import reg_tiktok
+from reg_garena import reg_garena
 
 
-def init_tool(name_sheet, group_gpm, screen_size, is_reg_fb, is_reg_insta, is_reg_reddit, is_reg_tiktok):
+def init_tool(name_sheet, group_gpm, screen_size, is_reg_fb, is_reg_insta, is_reg_reddit, is_reg_tiktok, is_reg_garena):
     print("init tool")
     wks = start_sheet(name_sheet, "main")
 
     while True:
-        # index_proxy, proxy = get_proxy_first(name_sheet)
-        # if proxy is None or proxy == "":
-        #     print("cannot get proxy")
-        #     break
+        index_proxy, proxy = get_proxy_first(name_sheet)
+        if proxy is None or proxy == "":
+            print("cannot get proxy")
+            break
 
         index_account_on_sheets, account = get_account(wks)
         if account is None:
@@ -33,16 +34,15 @@ def init_tool(name_sheet, group_gpm, screen_size, is_reg_fb, is_reg_insta, is_re
             refresh_proxy_status(name_sheet)
             break
 
-        # start_tool(wks, index_account_on_sheets, account, proxy)
         start_tool(group_gpm, screen_size, wks, index_account_on_sheets, account, is_reg_fb, is_reg_insta,
-                   is_reg_reddit, is_reg_tiktok, proxy=None)
+                   is_reg_reddit, is_reg_tiktok, is_reg_garena, proxy)
 
         refresh_proxy_status(name_sheet)
         sleep(3)
 
 
 def start_tool(group_gpm, screen_size, wks, index_account_on_sheets, account, is_reg_fb, is_reg_insta,
-               is_reg_reddit, is_reg_tiktok, proxy):
+               is_reg_reddit, is_reg_tiktok, is_reg_garena, proxy):
     print("start tool")
 
     if account is not None:
@@ -91,6 +91,10 @@ def start_tool(group_gpm, screen_size, wks, index_account_on_sheets, account, is
                 if not reg_tiktok(browser, wks, index_account_on_sheets, account):
                     have_error = True
 
+            if is_reg_garena:
+                if not reg_garena(browser, wks, index_account_on_sheets, account):
+                    have_error = True
+
             close_profile(browser)
 
             if not have_error:
@@ -112,5 +116,5 @@ def start_tool(group_gpm, screen_size, wks, index_account_on_sheets, account, is
             return
 
 
-if __name__ == '__main__':
-    init_tool("tool reg")
+# if __name__ == '__main__':
+#     init_tool("tool reg")

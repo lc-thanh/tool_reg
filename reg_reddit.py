@@ -1,4 +1,6 @@
 import random
+import string
+
 from common_element import *
 from CONSTANT_gspread import *
 from captcha import by_captcha
@@ -9,6 +11,7 @@ def reg_reddit(browser, wks, index_account, account):
     print("Starting reg Reddit...")
     email = str(account.get("ID"))
     password = str(account.get("Password"))
+    username = email.split("@")[0]
     error = 0
     while True:
         if error > 3:
@@ -21,13 +24,32 @@ def reg_reddit(browser, wks, index_account, account):
         if input_value_by_xpath(browser, '//input[@id="regEmail"]', email):
             if click_elment_xpath(browser, '//button[@data-step="email"]'):
                 waitWebLoading(browser, 5)
-                if input_value_by_xpath(browser, '//input[@id="regUsername"]', email.split("@")[0]):
+                if input_value_by_xpath(browser, '//input[@id="regUsername"]', username):
                     if input_value_by_xpath(browser, '//input[@id="regPassword"]', password):
-                        # print("captcha")
-                        # by_captcha(browser)
-                        # sleep(5)
-                        print("waiting for captcha")
-                        sleep(30)
+                        # Kiểm tra username có bị trùng không?
+                        if has_element_xpath(browser, "//div[contains(text(),'username is already taken')]"):
+                            characters = string.ascii_letters + string.digits
+                            username += ''.join(random.choice(characters) for _ in range(3))
+                            print("username isn't available")
+                            print("new username: " + str(username))
+                            sleep(2)
+                            input_value_by_xpath(browser, '//input[@id="regUsername"]', username)
+                            sleep(2)
+                            click_elment_xpath(browser, '//input[@id="regPassword"]')
+                            # Kiểm tra username có bị trùng không?
+                            if has_element_xpath(browser, "//div[contains(text(),'username is already taken')]"):
+                                characters = string.ascii_letters + string.digits
+                                username += ''.join(random.choice(characters) for _ in range(3))
+                                print("username isn't available")
+                                print("new username: " + str(username))
+                                sleep(2)
+                                input_value_by_xpath(browser, '//input[@id="regUsername"]', username)
+
+                        print("captcha")
+                        by_captcha(browser)
+                        sleep(5)
+                        # print("waiting for captcha")
+                        # sleep(30)
                         if not click_elment_xpath(browser, '//button[@data-step="username-and-password"]'):
                             error += 1
                             continue
