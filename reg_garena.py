@@ -17,46 +17,52 @@ def reg_garena(browser, wks, index_account, account):
             return False
 
         browser.get("https://sso.garena.com/universal/register")
-        waitWebLoading(browser)
+        waitWebLoading(browser, 5)
 
-        if not input_value_by_xpath(browser, '//input[@placeholder="Username"]', username):
+        if not input_type_char(browser, '//input[@placeholder="Username"]', username):
             error += 1
             print("cannot input, trying reg again...")
             sleep(2)
             continue
 
-        if not input_value_by_xpath(browser, '//input[@placeholder="Password"]', password):
+        sleep(random.uniform(2.6, 3.8))
+        if not input_type_char(browser, '//input[@placeholder="Password"]', password):
             error += 1
             print("cannot input, trying reg again...")
             sleep(2)
             continue
 
-        if has_element_xpath(browser, "//div[contains(text(),'between 6-15 characters')]"):
+        if has_element_xpath(browser, "//div[contains(text(),'between 6-15 characters')]", 1):
             username = username[0:12]
             print("new username: " + str(username))
-            input_value_by_xpath(browser, '//input[@placeholder="Username"]', username)
+            input_type_char(browser, '//input[@placeholder="Username"]', username)
+            sleep(random.uniform(2.6, 3.8))
         else:
-            if has_element_xpath(browser, "//div[contains(text(),'username has been taken')]"):
+            if has_element_xpath(browser, "//div[contains(text(),'username has been taken')]", 1):
                 characters = string.ascii_letters + string.digits
                 username += ''.join(random.choice(characters) for _ in range(2))
                 print("username isn't available")
                 print("new username: " + str(username))
-                input_value_by_xpath(browser, '//input[@placeholder="Username"]', username)
+                input_type_char(browser, '//input[@placeholder="Username"]', username)
+                sleep(random.uniform(2.6, 3.8))
 
-        if not input_value_by_xpath(browser, '//input[@placeholder="Re-enter password"]', password):
+        sleep(random.uniform(2.6, 3.8))
+        if not input_type_char(browser, '//input[@placeholder="Re-enter password"]', password):
             error += 1
             print("cannot input, trying reg again...")
             sleep(2)
             continue
 
-        if has_element_xpath(browser, "//div[contains(text(),'username has been taken')]"):
+        if has_element_xpath(browser, "//div[contains(text(),'username has been taken')]", 1):
             characters = string.ascii_letters + string.digits
             username += ''.join(random.choice(characters) for _ in range(2))
             print("username isn't available")
             print("new username: " + str(username))
-            input_value_by_xpath(browser, '//input[@placeholder="Username"]', username)
+            input_type_char(browser, '//input[@placeholder="Username"]', username)
+            sleep(random.uniform(2.6, 3.8))
 
-        if not input_value_by_xpath(browser, '//input[@placeholder="Email"]', email):
+        sleep(random.uniform(2.6, 3.8))
+        if not input_type_char(browser, '//input[@placeholder="Email"]', email):
             error += 1
             print("cannot input, trying reg again...")
             sleep(2)
@@ -73,6 +79,7 @@ def reg_garena(browser, wks, index_account, account):
             error += 1
             continue
 
+        sleep(random.uniform(3.6, 4.8))
         click_elment_xpath(browser, '//button[@type="submit"]')
         if has_element_xpath(browser, "//div[contains(text(),'have been blocked')]"):
             error += 1

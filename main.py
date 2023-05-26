@@ -5,7 +5,7 @@ from tkinter import *
 from tkinter import messagebox
 
 from startup import init_tool
-from read_hotmail import getCodeMail
+from read_hotmail import getCodeMail, get_verify_link
 
 
 def main():
@@ -169,3 +169,4 @@ if __name__ == '__main__':
     main()
     # getCodeMail("bertrandfittingusfx@hotmail.com", "F8PvEK3sLR", "noreply@account.tiktok.com")
     # print("sturkeyhanneloresus"[0:12])
+    # get_verify_link("christina_ox292.eser@outlook.com", "a60fs2Ul5", "account@garena.com")

@@ -76,6 +76,10 @@ def getCodeMail(username, password, email_code):
 # getCodeMail(username, password, email_code)
 
 def get_verify_link(username, password, from_email):
+    def getGarenaCode(code_paragraph: str):
+        elements = code_paragraph.split(" ")
+        return elements[len(elements) - 1]
+
     username = str(username)
     app_password = str(password)
     gmail_host = 'imap-mail.outlook.com'
@@ -118,16 +122,36 @@ def get_verify_link(username, password, from_email):
                 # Sử dụng BeautifulSoup để phân tích cú pháp HTML
                 soup = BeautifulSoup(html_content, "html.parser")
 
-                # Tìm phần tử <a> với href chứa chuỗi "reddit.com/verification/"
-                link_element = soup.find("a", href=lambda href: href and "reddit.com/verification/" in href)
-                if link_element:
-                    # Trích xuất URL từ phần tử <a>
-                    link_url = link_element["href"]
-                    print("URL to click:", link_url)
-                    print("-----")
-                    return link_url
+                if "reddit" in from_email:
+                    # Tìm phần tử <a> với href chứa chuỗi "reddit.com/verification/"
+                    link_element = soup.find("a", href=lambda href: href and "reddit.com/verification/" in href)
+                    if link_element:
+                        # Trích xuất URL từ phần tử <a>
+                        link_url = link_element["href"]
+                        print("URL to click:", link_url)
+                        print("-----")
+                        return link_url
+                    else:
+                        print("cannot get verify link")
 
-        print("cannot get verify link")
+                if "garena" in from_email:
+                    target_text = "please key in the code below on the registration webpage"
+                    paragraph_elements = soup.find_all("p")
+                    for paragraph_element in paragraph_elements:
+                        # Kiểm tra văn bản của phần tử <p>
+                        if target_text in paragraph_element.text:
+                            # In ra nội dung của phần tử
+                            print("Paragraph Content:")
+                            print(paragraph_element.text)
+                            print("-----")
+                            garenaCode = getGarenaCode(paragraph_element.text.strip())
+                            print("Garena code: " + str(garenaCode))
+                            return garenaCode
+
+                    print("cannot find <p> element with code")
+            else:
+                print("cannot extract HTML content")
+
         return None
     except:
         print("cannot get verify link")

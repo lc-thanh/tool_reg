@@ -56,16 +56,16 @@ def open_profile(profile_id):
                     options.add_argument('--disable-notifications')
                     options.add_argument("--disable-infobars")
                     # options.add_experimental_option('useAutomationExtension', False)
-                    options.add_argument("start-maximized")
+                    # options.add_argument("start-maximized")
                     # options.add_experimental_option("detach", True)
-                    options.add_argument("--disable-extensions")
+                    # options.add_argument("--disable-extensions")
                     # options.add_experimental_option("excludeSwitches", ['enable-automation'])
 
                     myService = service.Service(gpmDriverPath)
                     # driver = UndetectChromeDriver(service = myService, options=options)
                     driver = webdriver.Chrome(service=myService, options=options)
                     driver.set_page_load_timeout(30)
-                    time.sleep(15)
+                    time.sleep(10)
                     return driver
         except:
             index = index + 1

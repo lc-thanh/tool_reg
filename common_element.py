@@ -259,3 +259,42 @@ def scroll_into_view(driver, element):
         driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element)
     except:
         pass
+
+
+def input_type_char(browser, xpath, values, is_enter=False):
+    print("input_type_char")
+    index_error = 0
+    while True:
+        if index_error > 2:
+            return False
+        try:
+            el_input = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, xpath)))
+            el_input.click()
+            sleep(random.uniform(0.5, 1))
+            el_input.clear()
+            sleep(random.uniform(0.5, 1))
+            is_delete = 0
+            for value in values:
+                if random.choice([False, True]) and random.choice([False, True]):
+                    is_delete = is_delete + 1
+                    if is_delete < 3:
+                        el_input.send_keys(
+                            random.choice(['a', 'b', 'c', 'd', 'f', 'e', 'r', 't', 'm', 'n', 's', 'v', 'l']))
+                        sleep(random.uniform(0.1, 0.3))
+                        el_input.send_keys(Keys.BACKSPACE)
+                        sleep(random.uniform(0.1, 0.3))
+                el_input.send_keys(value)
+                sleep(random.uniform(0.1, 0.3))
+            if is_delete == 0:
+                el_input.send_keys(random.choice(['a', 'b', 'c', 'd', 'f', 'e', 'r', 't', 'm', 'n', 's', 'v', 'l']))
+                sleep(random.uniform(0.1, 0.3))
+                el_input.send_keys(Keys.BACKSPACE)
+                sleep(random.uniform(0.1, 0.3))
+            if is_enter:
+                el_input.send_keys(Keys.ENTER)
+                sleep(random.uniform(0.5, 2))
+            return True
+        except Exception as ex:
+            index_error = index_error + 1
+            print("not input_type_char sleep 10s " + str(ex))
+            sleep(10)
